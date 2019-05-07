@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Import provided SQL files in to MySQL.
+# Import provided SQL files in to MariaDB/MySQL.
 #
 # The files in the {vvv-dir}/database/backups/ directory should be created by
 # mysqldump or some other export process that generates a full set of SQL commands
@@ -18,8 +18,21 @@
 #
 # Let's begin...
 
+VVV_CONFIG=/vagrant/vvv-config.yml
+if [[ -f /vagrant/vvv-custom.yml ]]; then
+	VVV_CONFIG=/vagrant/vvv-custom.yml
+fi
+
+run_restore=`cat ${VVV_CONFIG} | shyaml get-value general.db_restore 2> /dev/null`
+
+if [[ $run_restore == "False" ]]
+then
+	echo "Skipping DB import script\n"
+	exit;
+fi
+
 # Move into the newly mapped backups directory, where mysqldump(ed) SQL files are stored
-printf "\nStart MySQL Database Import\n"
+printf "\nStart MariaDB Database Import\n"
 cd /srv/database/backups/
 
 # Parse through each file in the directory and use the file name to
